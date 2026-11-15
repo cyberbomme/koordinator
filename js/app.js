@@ -248,6 +248,7 @@
     map = L.map('map', { zoomControl: true, worldCopyJump: true }).setView([51.1657, 10.4515], 5);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
+      crossOrigin: true, // nicht-opake Antworten, damit der Service Worker Kacheln sparsam cachen kann
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
     map.on('click', (e) => {
@@ -457,6 +458,51 @@
     });
   }
 
+  /* ---------------- Installation (PWA) ---------------- */
+
+  let installPrompt = null;
+
+  function isStandalone() {
+    return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  }
+
+  function isIOS() {
+    return /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  }
+
+  function updateInstallUi() {
+    const btn = $('#btn-install');
+    const hint = $('#install-hint');
+    btn.hidden = !installPrompt || isStandalone();
+    if (isStandalone()) hint.textContent = t('installDone');
+    else if (installPrompt) hint.textContent = t('installReady');
+    else if (isIOS()) hint.textContent = t('installIOS');
+    else hint.textContent = t('installOther');
+  }
+
+  function initInstall() {
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      installPrompt = e;
+      updateInstallUi();
+    });
+    window.addEventListener('appinstalled', () => {
+      installPrompt = null;
+      updateInstallUi();
+      toast(t('installed'));
+    });
+    $('#btn-install').addEventListener('click', async () => {
+      if (!installPrompt) return;
+      installPrompt.prompt();
+      await installPrompt.userChoice;
+      installPrompt = null;
+      updateInstallUi();
+    });
+    if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+  }
+
   /* ---------------- Start ---------------- */
 
   readUrl();
@@ -466,6 +512,8 @@
   applyMapVisibility();
   updateLinks();
   initSettingsDialog();
+  initInstall();
+  updateInstallUi();
   $('#btn-locate').addEventListener('click', locate);
   $('#btn-share').addEventListener('click', share);
 })();

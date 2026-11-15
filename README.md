@@ -24,6 +24,9 @@ Die drei Winkel-Felder akzeptieren jede gängige Schreibweise (Dezimalkomma, Pr�
 - Teilen-Link (`?c=lat,lon`), Öffnen in Google Maps / OpenStreetMap / Apple Maps
 - Deutsch / Englisch, helles / dunkles Design
 - Läuft komplett lokal, keine Daten verlassen den Browser (außer Kartenkacheln)
+- **Installierbar als App (PWA)** und offline nutzbar – zuletzt angesehene Kartenausschnitte bleiben ebenfalls verfügbar
+  - Android/Chrome/Edge: Einstellungen → „Als App installieren“ (oder Browser-Menü)
+  - iPhone/iPad: in Safari „Teilen“ → „Zum Home-Bildschirm“
 
 ## Hinweise zur Genauigkeit
 
@@ -35,5 +38,7 @@ Die drei Winkel-Felder akzeptieren jede gängige Schreibweise (Dezimalkomma, Pr�
 Statische Seite ohne Build-Schritt. Bibliotheken liegen in `vendor/`:
 [proj4js](https://github.com/proj4js/proj4js) 2.11.0, [mgrs](https://github.com/proj4js/mgrs) 2.1.0, [Leaflet](https://leafletjs.com) 1.9.4.
 Plus Code, Geohash und Maidenhead sind in [`js/convert.js`](js/convert.js) selbst implementiert.
+
+Nach Änderungen an der Dateiliste `VERSION` in [`sw.js`](sw.js) erhöhen. Inhaltliche Änderungen kommen auch ohne Versionssprung an (spätestens beim zweiten Öffnen).
 
 Lokal starten: `python3 -m http.server` im Repo-Ordner, dann http://localhost:8000 öffnen.
